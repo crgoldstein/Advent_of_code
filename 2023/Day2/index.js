@@ -18,6 +18,7 @@ function main(){
     runTest( "Test Data", powerOfMax, input, 2286)
     runTest("File Data",powerOfMax, file, 66363)
 }
+
 function formatGames(games){
     const formated = []
     const g = games.split(';')
