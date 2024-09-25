@@ -163,7 +163,6 @@ function getKeysWithHighestValue(map) {
     return keysWithMaxValue;
 }
 
-
 const elementsB={
     'A': 12, 
     'K': 11,  
