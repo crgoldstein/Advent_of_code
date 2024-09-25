@@ -33,6 +33,14 @@ LR
 XXX = (XXX, XXX)
 `
 
+// Step 0: You are at 11A and 22A.
+// Step 1: You choose all of the left paths, leading you to 11B and 22B.
+// Step 2: You choose all of the right paths, leading you to 11Z and 22C.
+// Step 3: You choose all of the left paths, leading you to 11B and 22Z.
+// Step 4: You choose all of the right paths, leading you to 11Z and 22B.
+// Step 5: You choose all of the left paths, leading you to 11B and 22C.
+// Step 6: You choose all of the right paths, leading you to 11Z and 22Z.
+
 const file = readFileSync(`./${day}/input.txt`,"utf-8").trim()  // reading files need always needs to trim that file
 
 async function main(){
@@ -40,11 +48,11 @@ async function main(){
 
     // runTest( "Solve A EX1 ",solveA, ex2, 2)
     // runTest( "Solve A EX1 ",solveA, ex2, 6)
-    // runTest( "Solve A File",solveA, file, null) 
+    // runTest( "Solve A File",solveA, file, 20569) 
 
-    // await runTestAsync( "Solve B EX1 ", solveB, ex3, 6)
-    await runTestAsync( "Solve B File ",solveB, file, null)
-  
+    await runTest( "Solve B EX1 ", solveB, ex3, 6)
+    runTest( "Solve A File",solveB, file, null) 
+ 
 }
 
 
@@ -60,10 +68,9 @@ function solveA(input){
         let line = n.split('=');
         const key = line[0].trim()
         const [l,r] =line[1].replace(/[() ]/g, '').split(',')
-        console.log({key, l , r})
         map.set(key,[l,r])
     }
-    // console.log({map})
+    console.log({map})
     
     let counter = 0;
     let index = 0;
@@ -92,7 +99,6 @@ function solveA(input){
     return counter;
 }
 
-
 const map = new Map();
 let direction =[]
 async function solveB(input){
@@ -103,6 +109,7 @@ async function solveB(input){
     console.log("Number of directions ", directionLength);
 
     const aKeys =[]
+    const zKeys =[]
     for (let n of network){
         let line = n.split('=');
         const key = line[0].trim();
@@ -113,67 +120,158 @@ async function solveB(input){
         if (direction[2] === "A"){
             aKeys.push(key)
         }
+        if (direction[2] === "Z"){
+            zKeys.push(key)
+        }
     }
-    console.log({aKeys})
+    // console.log(direction.join(','))
+    // console.log({map})
+    console.log({aKeys,zKeys})
 
+    const dyn = new Map(); 
+    let allkeys =[];
+    for (let lookUp of aKeys){
+        const seen = [] // 11A-L ,
+        let counter = -1;
+        let index = 0;
+     
+        while (true){
+            const id = index +'-'+lookUp;
+            const prevIndex = seen.indexOf(id)
+            // this is broken : b.c  'R-MCR', is already in the seen array but its not the cycle are looking for 
+            if (prevIndex != -1){
+                // console.log("cycle!!")
+                const zIndexs = []
+                seen.forEach((el,i )=> {
+                    if (el.endsWith('Z')){
+                        zIndexs.push(i-prevIndex)
+                    }
+                })
+                let offset = prevIndex;
+                // console.log({ id, seen ,offset ,zIndexs, len: seen.length})
+                allkeys.push({ offset ,zIndexs, seenLen : seen.length - prevIndex})
 
-    let counter = 0;
-    let index = 0;
-    let foundZZZ = false; 
-    let lookUps = aKeys;
-
-    while (!foundZZZ){
-        counter++;
-        const v =( direction[index] === 'R' ) ? 1 : 0;
-        // lookUps = lookUps.map(el => findNewKey(el,v)); 
-                // Parallelize the lookUps.map() operation
-        lookUps = await parallelProcess(lookUps, v);
-       
-        let allZ = true;
-        for (let i = 0; i < lookUps.length; i++) {
-            if (lookUps[i][2] !== 'Z') {
-                allZ = false;
-                break; 
+                break;
             }
-        }
 
-        if (allZ ){
-            foundZZZ = true;  
-        }else{
+            const a = map.get(lookUp);
+            const v =( direction[index] === 'R' ) ? 1 : 0
+            const newKey = a[v];
+
+            seen.push(id)
+
+            
+            lookUp=newKey;
             index++;
-        }
-        if( index >= directionLength){
-            index=0
-        }
+            
 
-        if (counter%1000000 ===0){
-            console.log({counter})
+            if( index >= direction.length){
+                index=0
+            } 
+            
+            counter++;
+        }  
+         
+        
+    }  
+    console.log(allkeys) 
+    let i =0;
+
+    /*
+[
+  { offset: 1, zIndexs: [ 1 ], seenLen: 2 },
+  { offset: 1, zIndexs: [ 2, 5 ], seenLen: 6 }
+]
+
+least common mulitple of 2 and 6
+
+    */
+    while(true){
+        const isE = allkeys.every(a =>{
+            for( let z of a.zIndexs){
+                const ishere = z+a.offset === i;
+                const iscycle= (i-a.offset)%a.seenLen == z
+                if(ishere || iscycle){
+                    // console.log({i, seenLen: a.seenLen})
+                    return true;
+                    // console.log({i, a ,z, ishere, iscycle})
+                }
+            }
+            
+            return false;
+        })
+        if (isE){
+            console.log({isE})
+
+            return i;
         }
+        i++;
+     }
+    
+  
+}
+
+
+// brute force didnt work 
+// function clairesFristTry(){
+
+//     let counter = 0;
+//     let index = 0;
+//     let foundZZZ = false; 
+//     let lookUps = aKeys;
+
+//     while (!foundZZZ){
+//         counter++;
+//         const v =( direction[index] === 'R' ) ? 1 : 0;
+//     // Parallelize the lookUps.map() operation
+//         lookUps = await parallelProcess(lookUps, v);
        
-    }
-   return counter;
-}
+//         let allZ = true;
+//         for (let i = 0; i < lookUps.length; i++) {
+//             if (lookUps[i][2] !== 'Z') {
+//                 allZ = false;
+//                 break; 
+//             }
+//         }
 
-async function parallelProcess(lookUps, v) {
-    const chunkSize = 100;
-    const promises = [];
-    for (let i = 0; i < lookUps.length; i += chunkSize) {
-        const chunk = lookUps.slice(i, i + chunkSize);
-        promises.push(Promise.all(chunk.map(el => findNewKey(el, v))));
-    }
-    const results = await Promise.all(promises);
-    return results.flat();
-}
+//         if (allZ ){
+//             foundZZZ = true;  
+//         }else{
+//             index++;
+//         }
+//         if( index >= directionLength){
+//             index=0
+//         }
 
-function findNewKey(lookUp,v){
-    const a = map.get(lookUp);
-    return a[v];
-}
+//         if (counter%1000000 ===0){
+//             console.log({counter})
+//         }
+       
+//     }
+// }
+// //[ 'STA', 'AAA', 'GPA', 'LKA', 'DFA', 'KKA' ]
+// async function parallelProcess(lookUps, v) {
+//     const chunkSize = 100;
+//     const promises = [];
+//     for (let i = 0; i < lookUps.length; i += chunkSize) {
+//         const chunk = lookUps.slice(i, i + chunkSize);
+//         promises.push(Promise.all(chunk.map(el => findNewKey(el, v))));
+//     }
+//     const results = await Promise.all(promises);
+//     return results.flat();
+// }
 
+// function findNewKey(lookUp,v){
+//     const a = map.get(lookUp);
+//     return a[v];
+// }
 
 
 function runTest(name, fn , input , expt){
-    const result = fn(input)
+    console.time(name);  
+    const result = fn(input);
+    console.timeEnd(name); 
+
     const correct = result === expt; 
     console.log({name, correct, result})
       
