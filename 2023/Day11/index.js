@@ -33,7 +33,7 @@ const ex1Expaned=`
 function main(){
     console.log(day)
 
-    runTest( "Solve A EX1 ",solveA, ex1, null)
+    runTest( "Solve A EX1 ",solveA, ex1, 374)
     // runTest( "Solve A File",solveA, file, null) 
     
     // runTest( "Solve B EX1 ",solveB, ex1, null)
@@ -65,23 +65,51 @@ function solveA(input){
     console.log({galaxies})
 
     const keys = Object.keys(galaxies)
-    const combinations = [];
+    let totalSteps = 0;
+    let comboCount= 0; 
+
     for (let i = 0; i < keys.length; i++) {
         for (let j = i + 1; j < keys.length; j++) {
-            combinations.push([keys[i], keys[j]]);
+            let start =galaxies[keys[i]]
+            let end =  galaxies[keys[j]] 
+    
+            let path = findPath(start,end)
+            let steps =  path.length - 1;
+            console.log(keys[i] , keys[j] ,{start,end,steps})
+            totalSteps += steps;
+            comboCount++;
+        }
+    }   
+  
+    mazeToString(expanedMaze);
+    console.log({comboCount , totalSteps})  
+    return totalSteps;
+}
+
+function findPath(start, end) {
+    const path = [];
+    let currentRow = start.r;
+    let currentCol = start.c;
+
+    while (currentRow !== end.r || currentCol !== end.c) {
+        if (currentRow < end.r) {
+            currentRow++;
+            path.push({ r: currentRow, c: currentCol });
+        } else if (currentRow > end.r) {
+            currentRow--;
+            path.push({ r: currentRow, c: currentCol });
+        }
+
+        if (currentCol < end.c) {
+            currentCol++;
+            path.push({ r: currentRow, c: currentCol });
+        } else if (currentCol > end.c) {
+            currentCol--;
+            path.push({ r: currentRow, c: currentCol });
         }
     }
-    // console.log({combinations})
-    let start =galaxies['5']
-    let end =  galaxies['9'] 
-    // should be 9 for min steps 
-   
-    let dis = Math.abs(start.r - end.c) + Math.abs(start.c - end.c);
-    console.log({start,end , dis})
-    //Only count each pair once; order within the pair doesn't matter. 
-    //For each pair, find any shortest path between the two galaxies using only steps that move up, down, left, or right exactly one . or # at a time. (The shortest path between two galaxies is allowed to pass through another galaxy.)
-    
-    return undefined;
+
+    return path;
 }
 
 function mazeToString(maze){
