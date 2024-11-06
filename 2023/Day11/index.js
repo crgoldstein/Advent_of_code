@@ -13,31 +13,31 @@ const ex1=`\
 #...#.....
 `
 
-const ex1Expaned=`
-....#........
-.........#...
-#............
+const nums=`\
+....1........
+.........2...
+3............
 .............
 .............
-........#....
-.#...........
-............#
+........4....
+.5...........
+............6
 .............
 .............
-.........#...
-#....#.......`
+.........7...
+8....9.......`
 
-// const file = readFileSync(`./${day}/input.txt`,"utf-8").trim()  // reading files need always needs to trim that file
-
+const file = readFileSync(`./${day}/input.txt`,"utf-8").trim()  // reading files need always needs to trim that file
 
 function main(){
     console.log(day)
 
-    runTest( "Solve A EX1 ",solveA, ex1, 374)
+    // runTest( "Solve A EX1 ",solveA, ex1, 374)
     // runTest( "Solve A File",solveA, file, null) 
     
-    // runTest( "Solve B EX1 ",solveB, ex1, null)
-    // runTest( "Solve B File ",solveB, file, null)
+    runTest( "Solve B EX1 ",(input) => solveB(input, 2), ex1,  374)// this is part A     
+    // runTest( "Solve B EX1 ",(input) => solveB(input,10), ex1,  1030)
+    // runTest( "Solve B EX1 ",(input) => solveB(input,100), ex1, 8410)
 }
 
 
@@ -55,7 +55,7 @@ function solveA(input){
         for (let c = 0; c < expanedMaze[r].length; c++) {
             if (expanedMaze[r][c] === '#'){
                 expanedMaze[r][c] = count;
-                galaxies[count] ={r , c}
+                galaxies[count] = {r , c}
                 count++; 
             }
         }
@@ -73,10 +73,11 @@ function solveA(input){
             let start =galaxies[keys[i]]
             let end =  galaxies[keys[j]] 
     
-            let path = findPath(start,end)
-            let steps =  path.length - 1;
-            console.log(keys[i] , keys[j] ,{start,end,steps})
-            totalSteps += steps;
+            // let path = findPath(start,end) //O(n^2)
+            // let steps =  path.length;
+            let MD = manhattanDistance(start,end) // O(n)
+            console.log(keys[i] , keys[j] ,{start,end, MD})
+            totalSteps += MD;
             comboCount++;
         }
     }   
@@ -125,8 +126,7 @@ function mazeToString(maze){
 }
 
 function lookForExpansion(maze){
-    const rows = [];
-    const cols = [];
+    let ogMaze = structuredClone(maze)
     
     for (let r = 0; r < maze.length; r++) {
         let line =''
@@ -134,7 +134,8 @@ function lookForExpansion(maze){
             line+= maze[r][c];
         }
         if ( isOnlyDots(line) ){
-            rows.push(r)
+            maze.splice(r, 0, Array(maze[r].length).fill('.'));
+            r++;
         }
     }  
     
@@ -144,28 +145,19 @@ function lookForExpansion(maze){
             line+= maze[r][c];
         }
         if ( isOnlyDots(line) ){
-            cols.push(c)
+        
+            for (let row of maze) {
+                row.splice(c, 0, '.');
+            }
+            c++;
+               
         }
     } 
-
-    let newMaze = maze.map(innerArray => innerArray.slice());
-    
-    for (let row of newMaze) {
-        for ( let c of cols){
-            row.splice(c, 0, '.');
-        }
-    }
-   
-    let len = maze[0].length + cols.length;
-    for ( let r of rows){
-        newMaze.splice(r, 0, Array(len).fill('.'));
-    }
+    console.log(`ogMaze size row ${ogMaze.length} , col ${ogMaze[0].length}`)
     
     console.log(`Maze size row ${maze.length} , col ${maze[0].length}`)
-    console.log(`newMaze size row ${newMaze.length} , col ${newMaze[0].length}`)
     
-
-    return newMaze
+    return maze
 
 }
 
@@ -173,14 +165,112 @@ function isOnlyDots(str) {
     return /^[.]+$/.test(str);
 }
 
-function solveB(input){
-    const maze = input.trim().split("\n").map(el => el.split(''))
-    console.log({maze})
+function isOnlyDotsorE(str) {
+    
+    return /^[.e]+$/.test(str);
+}
+function manhattanDistance(start,end) {
+    return Math.abs(start.r - end.r) + Math.abs(start.c - end.c);
+}
 
+function labelExpansion(maze){
+    let ogMaze = structuredClone(maze)
+    const rows =[]
+    const cols =[]
+    for (let r = 0; r < maze.length; r++) {
+        let line =''
+        for (let c = 0; c < maze[r].length; c++) {
+            line+= maze[r][c];
+        }
+        if ( isOnlyDotsorE(line) ){
+            maze[r] = Array(maze.length).fill('e');
+            rows.push(r)
+        }
+    }  
+    
+    for (let c = 0; c < maze[0].length; c++) {
+        let line =''
+        for (let r = 0; r < maze.length; r++) {
+            line+= maze[r][c];
+        }
+        if ( isOnlyDotsorE(line) ){
+            cols.push(c)
+            for (let row in maze) {
+                maze[row][c]='e'
+            }  
+        }
+    } 
+    console.log(`ogMaze size row ${ogMaze.length} , col ${ogMaze[0].length}`)
+    
+    console.log(`Maze size row ${maze.length} , col ${maze[0].length}`)
+    
+    return {eRows:rows, eCols: cols}
+
+}
+
+function solveB(input, expansionRate){
+    const maze = input.trim().split("\n").map(el => el.split(''))
+    console.log(`Maze size row ${maze.length} , col ${maze[0].length}`)
+    mazeToString(maze)
+    
+    const galaxies= {}
+    let count = 1; 
+    for (let r = 0; r < maze.length; r++) {
+        for (let c = 0; c < maze[r].length; c++) {
+            if (maze[r][c] === '#'){
+                maze[r][c] = count;
+                galaxies[count] = {r , c}
+                count++; 
+            }
+        }
+    }
+    const {eRows ,eCols }= labelExpansion(maze) // Replace the rows that would be e for expansion  change . to e 
+    mazeToString(maze);
+
+    console.log({eRows,eCols})
+
+// keep track of the indexes so you can check the 
+    let totalSteps =0 ; 
+    const keys = Object.keys(galaxies)
+    for (let i = 0; i < keys.length; i++) {
+        for (let j = i + 1; j < keys.length; j++) {
+            let start =galaxies[keys[i]]
+            let end =  galaxies[keys[j]] 
+    
+            // let path = findPath(start,end) //O(n^2)
+            // let steps =  path.length;
+            let MD = manhattanDistance(start,end) // O(n)
+            let eCount = 0;
+            if (keys[i] === '5' && keys[j]==='9' ){// 17 steps
+                console.log({start})
+                console.log({end})
+                console.log({MD})
+                let eCount = 0;
+                for (let e of eRows){
+                    if (e > start.r && e< end.r){
+                        eCount++;
+                    }
+                }
+                for (let e of eCols){
+                    if (e > start.c && e< end.c){
+                        eCount++;
+                    }
+                }
+                console.log({eCount})
+             }
+            totalSteps += (MD + eCount);
+        }
+    } 
+
+    console.log({totalSteps})
+    // we have the mattDis between 2 points - #
+    // count the number of rows that would be expanteded to do the math to have the expaded distacne 
+
+    
    return undefined;
 }
 
-function runTest(name, fn , input , expt){
+function runTest(name, fn , input , expt){ 
     const result = fn(input)
     const correct = result === expt; 
     console.log({name, correct, result}) 
