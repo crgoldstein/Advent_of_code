@@ -31,13 +31,15 @@ const file = readFileSync(`./${day}/input.txt`,"utf-8").trim()  // reading files
 
 function main(){
     console.log(day)
-
     // runTest( "Solve A EX1 ",solveA, ex1, 374)
     // runTest( "Solve A File",solveA, file, null) 
     
     runTest( "Solve B EX1 ",(input) => solveB(input, 2), ex1,  374)// this is part A     
-    // runTest( "Solve B EX1 ",(input) => solveB(input,10), ex1,  1030)
-    // runTest( "Solve B EX1 ",(input) => solveB(input,100), ex1, 8410)
+    runTest( "Solve B EX1 ",(input) => solveB(input,10), ex1,  1030)
+    runTest( "Solve B EX1 ",(input) => solveB(input,100), ex1, 8410)
+
+    runTest( "Solve B EX1 ",(input) => solveB(file,1000000), ex1, 377318892554)
+    
 }
 
 
@@ -76,7 +78,7 @@ function solveA(input){
             // let path = findPath(start,end) //O(n^2)
             // let steps =  path.length;
             let MD = manhattanDistance(start,end) // O(n)
-            console.log(keys[i] , keys[j] ,{start,end, MD})
+            console.log(keys[i] , "to " , keys[j] ,{MD})
             totalSteps += MD;
             comboCount++;
         }
@@ -165,8 +167,7 @@ function isOnlyDots(str) {
     return /^[.]+$/.test(str);
 }
 
-function isOnlyDotsorE(str) {
-    
+function isOnlyDotsorE(str) { 
     return /^[.e]+$/.test(str);
 }
 function manhattanDistance(start,end) {
@@ -200,10 +201,7 @@ function labelExpansion(maze){
             }  
         }
     } 
-    console.log(`ogMaze size row ${ogMaze.length} , col ${ogMaze[0].length}`)
-    
-    console.log(`Maze size row ${maze.length} , col ${maze[0].length}`)
-    
+   
     return {eRows:rows, eCols: cols}
 
 }
@@ -211,7 +209,7 @@ function labelExpansion(maze){
 function solveB(input, expansionRate){
     const maze = input.trim().split("\n").map(el => el.split(''))
     console.log(`Maze size row ${maze.length} , col ${maze[0].length}`)
-    mazeToString(maze)
+    // mazeToString(maze)
     
     const galaxies= {}
     let count = 1; 
@@ -225,13 +223,14 @@ function solveB(input, expansionRate){
         }
     }
     const {eRows ,eCols }= labelExpansion(maze) // Replace the rows that would be e for expansion  change . to e 
-    mazeToString(maze);
+    // mazeToString(maze);
 
-    console.log({eRows,eCols})
+    // console.log({eRows,eCols})
 
 // keep track of the indexes so you can check the 
     let totalSteps =0 ; 
     const keys = Object.keys(galaxies)
+
     for (let i = 0; i < keys.length; i++) {
         for (let j = i + 1; j < keys.length; j++) {
             let start =galaxies[keys[i]]
@@ -241,33 +240,29 @@ function solveB(input, expansionRate){
             // let steps =  path.length;
             let MD = manhattanDistance(start,end) // O(n)
             let eCount = 0;
-            if (keys[i] === '5' && keys[j]==='9' ){// 17 steps
-                console.log({start})
-                console.log({end})
-                console.log({MD})
-                let eCount = 0;
+            let steps = 0;
                 for (let e of eRows){
                     if (e > start.r && e< end.r){
                         eCount++;
                     }
                 }
                 for (let e of eCols){
-                    if (e > start.c && e< end.c){
+                    if ((e > start.c && e<end.c) || (e>end.c && e<start.c)){
                         eCount++;
                     }
                 }
-                console.log({eCount})
-             }
-            totalSteps += (MD + eCount);
+            steps = MD + (eCount * (expansionRate -1))
+           
+            totalSteps += steps;
         }
     } 
-
-    console.log({totalSteps})
+    console.log({expansionRate})// for 10 > 1030 ,  2 > 374 
+    console.log({totalSteps} )
     // we have the mattDis between 2 points - #
     // count the number of rows that would be expanteded to do the math to have the expaded distacne 
 
     
-   return undefined;
+   return totalSteps;
 }
 
 function runTest(name, fn , input , expt){ 
