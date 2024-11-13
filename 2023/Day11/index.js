@@ -224,7 +224,6 @@ function solveB(input, expansionRate){
     }
     const {eRows ,eCols }= labelExpansion(maze) // Replace the rows that would be e for expansion  change . to e 
     // mazeToString(maze);
-
     // console.log({eRows,eCols})
 
 // keep track of the indexes so you can check the 
@@ -258,7 +257,7 @@ function solveB(input, expansionRate){
     } 
     console.log({expansionRate})// for 10 > 1030 ,  2 > 374 
     console.log({totalSteps} )
-    // we have the mattDis between 2 points - #
+    // we have the mattDis between 2 points - 
     // count the number of rows that would be expanteded to do the math to have the expaded distacne 
 
     
