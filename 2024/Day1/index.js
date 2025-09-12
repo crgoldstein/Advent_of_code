@@ -16,10 +16,10 @@ const ex2 =`
 
 function main() {
   const file = readFileSync("./Day1/input.txt", "utf-8").trim(); // reading files need always needs to trim that file
-  // runTest("A ex1",solveA,ex1,11)
-  // runTest("A File ",solveA,file,0)
+  runTest("A ex1",solveA,ex1,11)
+  runTest("A File ",solveA,file,1506483)
   runTest("B   ex2 ",solveB,ex1,31)
-  runTest("B File ", solveB, file, null);
+  runTest("B File ", solveB, file, 23126924);
 
   // runTest("B  ex3 ",solveB,ex3,281)
 }
