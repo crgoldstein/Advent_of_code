@@ -13,11 +13,11 @@ MAMMMXMMMM
 MXMXAXMASX
 `;
 
+
 const ex0 = `\
-MMMSXXMASM
-MSAMXMSMSA
-AMXSXMAAMM
-MSAMASMSMX
+.M.S.
+..A..
+.M.S.
 `;
 
 const file = readFileSync(`./${day}/input.txt`, "utf-8").trim(); // reading files need always needs to trim that file
@@ -25,81 +25,72 @@ const file = readFileSync(`./${day}/input.txt`, "utf-8").trim(); // reading file
 function main() {
   console.log(day);
 
-  runTest("Solve A EX1 ", solveA, ex1, null);
-  // runTest( "Solve A File",solveA, file, null)
+  // runTest("Solve A EX1 ", solveA, ex1, 18);
+  // runTest( "Solve A File",solveA, file, 2344)
 
-  // runTest( "Solve B EX1 ",solveB, ex1, null)
-  // runTest( "Solve B File ",solveB, file, null)
+  runTest( "Solve B EX1 ",solveB, ex1, 9)
+  runTest( "Solve B File ",solveB, file, 1815)
 }
 const WORD ="XMAS"
 function solveA(input) {
   const lines = input.trim().split("\n").map(el => el.split(""))
-  console.log({lines})
-  //This word search allows words to be horizontal, vertical, diagonal, written backwards, or even overlapping other words
-
-  const h = horizontalLoop(lines);// horizontal & backwards
-  const v = verticalLoop(lines)
-  console.log({h,v})
-  return undefined;
-}
-
-function horizontalLoop(matrix){
-  let count = 0;
-  for (let i = 0; i < matrix.length; i++) {   
-    const line=(matrix[i].join("")) 
-    const rev = reverseString(line)
-    for (let j = 0; j < matrix[i].length - WORD.length; j++) { 
-      const word = line.substring(j,j+WORD.length)
-      const revWord = rev.substring(j,j+WORD.length)
-      if(word === WORD){
-        count++
-      }
-      if(revWord === WORD){
-        count++
+  // console.log({lines})
+  //This word search allows words to be horizontal, vertical, diagonal,
+  //  written backwards, or even overlapping other words
+  let sum =0
+  for (let r = 0;r < lines.length; r++) { 
+    for (let c = 0; c < lines[r].length ; c++) { 
+      if(lines[r][c] === 'X' ){
+       let total = 
+        check(r,c,1,0)// down
+        +check(r,c,-1,0)// up
+        +check(r,c,0,1)// right
+        +check(r,c,0,-1) // left
+        +check(r,c,1,1) // down right
+        +check(r,c,-1,1) // up right
+        +check(r,c,1,-1)  // down left
+        +check(r,c,-1,-1) // up left   
+        // console.log({r,c , total})   
+        sum += total;
       }
     }
   }
-  return count;
-}
-
-function verticalLoop(matrix){
-  let count = 0;
-  console.log(matrix.length)  
-  for(let col = 0 ; col < matrix[0].length ; col++){
-    let line = ''
-    for ( let row =0 ; row< matrix.length ; row++){
-     line += matrix[row][col]
-    }
-
-    console.log({line})
-    const rev = reverseString(line)
-    for (let j = 0; j < line.length - WORD.length; j++) { 
-      const word = line.substring(j,j+WORD.length)
-      const revWord = rev.substring(j,j+WORD.length)
-      if(word === WORD){
-        count++
-      }
-      if(revWord === WORD){
-        count++
-      }
-    }
+  function check(r,c,x,y){
+   return lines[r+x]?.[c+y] === "M" && lines[r+x+x]?.[c+y+y] === "A" && lines[r+x+x+x]?.[c+y+y+y] === "S" ? 1 : 0; 
   }
-  
-  return count
+
+  return sum;
 }
-
-
-
-function reverseString(str) {
-  return str.split('').reverse().join('');
-}
-
 
 function solveB(input) {
-  const lines = input.trim().split("\n");
+  const lines = input.trim().split("\n").map(el => el.split(""))
+  // console.log({lines})
+  //This word search allows words to be horizontal, vertical, diagonal,
+  //  written backwards, or even overlapping other words
+  let sum =0
+  for (let r = 0;r < lines.length; r++) { 
+    for (let c = 0; c < lines[r].length ; c++) { 
+      if(lines[r][c] === 'A' ){
+       let total = 
+        check(r,c,-1,1) // Up right
+        +check(r,c,-1,-1)  // UP left
+        +check(r,c,1,1) // down right
+        +check(r,c,1,-1)  // down left
+        
+        if(total === 2){
+          sum++
+        }   
+      }
+    }
+  }
+  function check(r,c,x,y){
+   return (lines[r+x]?.[c+y] ==="M" && lines[r-x]?.[c-y] ==="S") ? 1 :0
+  }
 
-  return undefined;
+  return sum;
 }
+
+
 
 function runTest(name, fn, input, expt) {
   const result = fn(input);
