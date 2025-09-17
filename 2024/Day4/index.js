@@ -90,8 +90,6 @@ function solveB(input) {
   return sum;
 }
 
-
-
 function runTest(name, fn, input, expt) {
   const result = fn(input);
   const correct = result === expt;
