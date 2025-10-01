@@ -15,74 +15,72 @@ function main() {
   // runTest("Solve A EX1 ", solveA, ex1, 161);
   // runTest( "Solve A File",solveA, file, 175700056);
 
-  runTest( "Solve B EX1 ",solveB, ex2, 48)
-  runTest( "Solve B File ",solveB, file, null)
+  runTest("Solve B EX1 ", solveB, ex2, 48);
+  runTest("Solve B File ", solveB, file, null);
 }
 
 function solveA(input) {
-  const line = input.trim()
-  let sum = 0; 
-  for (let i =0; i<line.length;){
-    if (line.substring(i,i+4) === 'mul('){
-        // console.log({i},line[i], line.substring(i,i+4))
-        i+=4;
-        const close = line.substring(i,i+8);
-        if (!close.includes(")")){
-          continue;
-        }else{
-        const indexClose = close.indexOf(')')
-        const data = line.substring(i,i+indexClose)
-        if (data.includes(',')){
-          const [one,two] = data.split(',')
+  const line = input.trim();
+  let sum = 0;
+  for (let i = 0; i < line.length; ) {
+    if (line.substring(i, i + 4) === "mul(") {
+      // console.log({i},line[i], line.substring(i,i+4))
+      i += 4;
+      const close = line.substring(i, i + 8);
+      if (!close.includes(")")) {
+        continue;
+      } else {
+        const indexClose = close.indexOf(")");
+        const data = line.substring(i, i + indexClose);
+        if (data.includes(",")) {
+          const [one, two] = data.split(",");
           const final = parseInt(one) * parseInt(two);
           sum += final;
         }
-        i+=indexClose;
+        i += indexClose;
       }
-    }else{
-      i++
+    } else {
+      i++;
     }
   }
 
   return sum;
-
 }
 
-
 function solveB(input) {
-  const line = input.trim()
-  let sum = 0; 
-  let toggle = 'do'
-  
-  const d = `do()`;
-  const dnt =`don't()`;
+  const line = input.trim();
+  let sum = 0;
+  let toggle = "do";
 
-  for (let i =0; i<line.length;){
-    if (line.substring(i,i+d.length) === d){
-       toggle='do'
+  const d = `do()`;
+  const dnt = `don't()`;
+
+  for (let i = 0; i < line.length; ) {
+    if (line.substring(i, i + d.length) === d) {
+      toggle = "do";
     }
-    if (line.substring(i,i+dnt.length) === dnt){
-      toggle='dont'
+    if (line.substring(i, i + dnt.length) === dnt) {
+      toggle = "dont";
     }
-    
-    if ( toggle ==='do' && line.substring(i,i+4) === 'mul('){
-        // console.log({i},line[i], line.substring(i,i+4))
-        i+=4;
-        const close = line.substring(i,i+8);
-        if (!close.includes(")")){
-          continue;
-        }else{
-          const indexClose = close.indexOf(')')
-          const data = line.substring(i,i+indexClose)
-          if (data.includes(',')){
-            const [one,two] = data.split(',')
-            const final = parseInt(one) * parseInt(two);
-            sum += final;
-          }
-          i+=indexClose;
+
+    if (toggle === "do" && line.substring(i, i + 4) === "mul(") {
+      // console.log({i},line[i], line.substring(i,i+4))
+      i += 4;
+      const close = line.substring(i, i + 8);
+      if (!close.includes(")")) {
+        continue;
+      } else {
+        const indexClose = close.indexOf(")");
+        const data = line.substring(i, i + indexClose);
+        if (data.includes(",")) {
+          const [one, two] = data.split(",");
+          const final = parseInt(one) * parseInt(two);
+          sum += final;
+        }
+        i += indexClose;
       }
-    }else{
-      i++
+    } else {
+      i++;
     }
   }
 
