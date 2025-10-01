@@ -35,12 +35,58 @@ const file = readFileSync(`./${day}/input.txt`, "utf-8").trim(); // reading file
 
 function main() {
   console.log(day);
-  runTest("Solve A EX1 ", solveA, ex1, 143);
-  // runTest( "Solve A File",solveA, file, 6034);
+  runTest("Solve A EX1 ", solveA2, ex1, 143);
+  runTest( "Solve A File",solveA2, file, 6034);
 
   // runTest("Solve B EX1 ", solveB, ex1, 123);
   // runTest("Solve B File ", solveB, file, 6305);
 }
+
+function solveA2(input){
+  const lines = input.trim().split("\n");
+  const orders = lines.splice(0, lines.indexOf(""));
+  const pages = lines.splice(lines.indexOf("") + 1);
+  const rules = getRules2(orders);
+
+  let total = 0;
+  for (let p of pages) {
+    let arr = p.split(",").map((el) => parseInt(el));
+    let correct = true;
+    for (let i = 0; i < arr.length; i++) {
+      const check = arr[i];
+      for (let j = i+1; j < arr.length; j++) {
+        const other = arr[j];
+          if (rules.has(check) && !rules.get(check).includes(other)) {
+            correct = false;
+          } else if (rules.has(other) && rules.get(other).includes(check)){
+            correct = false;
+
+          }
+      }
+    }
+    if (correct) {
+      total += arr[parseInt(arr.length / 2)];
+    }
+    // break;
+  }
+
+  return total;
+}
+function getRules2(orders) {
+  // if something is defined as after something else - its implicit that before also is true
+  let afterSet = new Map();
+  for (let o of orders) {
+    const [before, after] = o.split("|").map((el) => parseInt(el));
+    if (!afterSet.has(before)) {
+      afterSet.set(before, [after]);
+    } else {
+      afterSet.get(before).push(after);
+    }
+  }
+  return afterSet;
+}
+
+
 
 function solveA(input) {
   const lines = input.trim().split("\n");
