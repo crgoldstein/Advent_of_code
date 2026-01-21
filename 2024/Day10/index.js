@@ -51,7 +51,7 @@ function main() {
   console.log(day);
 
   runTest("Solve A EX1 ", solveA, exA, 36);
-  runTest( "Solve A File",solveA, file, 472)
+  // runTest( "Solve A File",solveA, file, 472)
 
   // runTest( "Solve B EX1 ",solveB, ex1, null)
   // runTest( "Solve B File ",solveB, file, 969)
@@ -61,19 +61,19 @@ function solveA(input) {
   const lines = input.trim().split("\n");
   const matrix = lines.map(e => e.split("").map(Number));
   // console.log(matrix);
-  const heads = findTrailhead(matrix);
+  const heads = findTrailheadG(matrix);
 
   let total = 0
   for ( let h of heads){
       const score = findScore(h,matrix);
-          // console.log({score ,h})
+      console.log({score ,h})
           total+= score
   }
 
   return total;
 }
 
-function findTrailhead(matrix){
+function findTrailheadA(matrix){
   const results =[];
   for(let row=0; row <matrix.length ; row++){
       for(let col=0; col <matrix[row].length; col++){
@@ -86,6 +86,21 @@ function findTrailhead(matrix){
 
   return results;
 }
+
+function* findTrailheadG(matrix){// Generator function 
+  for(let row=0; row <matrix.length ; row++){
+      for(let col=0; col <matrix[row].length; col++){
+        if(matrix[row][col] === 0){
+          console.log("a")
+            yield [row,col]
+          console.log("b")
+        }
+      }
+  }
+
+
+}
+
 
 function findScore(start,matrix){
   const [rowS,colS] = start
