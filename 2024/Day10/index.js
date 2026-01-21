@@ -67,7 +67,7 @@ function solveA(input) {
   for ( let h of heads){
       const score = findScore(h,matrix);
       console.log({score ,h})
-          total+= score
+      total+= score
   }
 
   return total;
@@ -97,13 +97,10 @@ function* findTrailheadG(matrix){// Generator function
         }
       }
   }
-
-
 }
 
 
 function findScore(start,matrix){
-  const [rowS,colS] = start
   const nineLocs = new Set()
 
   function nextScore(position){
